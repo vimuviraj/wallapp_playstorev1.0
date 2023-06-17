@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:natural_wallpaper_hd/category_page.dart';
+import 'package:natural_wallpaper_hd/ex.dart';
 
 import 'package:natural_wallpaper_hd/splash_screen.dart';
+import 'package:provider/provider.dart';
+
+import 'favourit.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider<FavoriteImages>(
+      create: (_) => const FavoriteImages(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,6 +28,9 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       home: const SplashScreen(),
+      routes: {
+        "/favorite": (context) => const FavoriteImages(),
+      },
     );
   }
 }

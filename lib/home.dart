@@ -1,9 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-
 import 'package:http/http.dart' as http;
-
 import 'package:natural_wallpaper_hd/category_page.dart';
 import 'package:natural_wallpaper_hd/wallpaper_Setitem.dart';
 import 'navigationdrawer.dart';
@@ -49,11 +47,11 @@ class _WallpaperAppState extends State<WallpaperApp>
         final author = data['author'].toString();
 
         return WallpaperModel(
-          id: id,
-          imageUrl: imageUrl,
-          title: title,
-          author: author,
-        );
+            id: id,
+            imageUrl: imageUrl,
+            title: title,
+            author: author,
+            isFavorite: false);
       }).toList();
       return wallpapers;
     } else {
@@ -83,7 +81,7 @@ class _WallpaperAppState extends State<WallpaperApp>
     _tabController = TabController(
       length: categories.length,
       vsync: this,
-      initialIndex: 1,
+      initialIndex: 0,
     );
 
     categoryWallpapers = {for (var category in categories) category: []};
@@ -92,12 +90,77 @@ class _WallpaperAppState extends State<WallpaperApp>
 
     isLoadingMap = {for (var category in categories) category: false};
 
-    fetchWallpapers(currentCategory, currentPageMap[currentCategory]!)
-        .then((wallpapers) {
-      setState(() {
-        categoryWallpapers[currentCategory] = wallpapers;
-      });
-    });
+    for (var category in categories) {
+      if (category == 'CATEGORIES') {
+        List<String> imageUrls = [
+          'images/city & night.jpg',
+          'images/animals.jpg',
+          'images/places.jpg',
+          'images/natural.jpg',
+          'images/buildings.jpg',
+          'images/waterfalls.jpg',
+          'images/mountains.jpg',
+          'images/abstract.jpg',
+          'images/colorful.jpg',
+          'images/butterflies.jpg',
+          'images/flowers.jpg',
+          'images/birds.jpg',
+          'images/babies & kids.jpg',
+          'images/Festivals.jpg',
+          'images/sunshine.jpg',
+          'images/ocean.jpg',
+          'images/pink.jpg',
+          'images/rain & water drop.jpg',
+          'images/Yellow & orange.jpg',
+          'images/spring.jpg',
+          'images/winter & snow.jpg'
+        ];
+
+        List<String> titles = [
+          'City & Night',
+          'Animals',
+          'Places',
+          'Natural',
+          'Buildings',
+          'Waterfalls',
+          'Mountains',
+          'Abstract',
+          'Colorful',
+          'Butterflies',
+          'Flowers',
+          'Birds',
+          'Babies & Kids',
+          'Festivals',
+          'Sunshine',
+          'Ocean',
+          'Pink',
+          'Rain & Water Drop',
+          'Yellow & Orange',
+          'Spring',
+          'Winter & Snow'
+        ];
+
+        List<WallpaperModel> wallpapers = List.generate(
+          imageUrls.length,
+          (index) => WallpaperModel(
+              id: '',
+              imageUrl: imageUrls[index],
+              title: titles[index],
+              author: '',
+              isFavorite: false),
+        );
+
+        setState(() {
+          categoryWallpapers[category] = wallpapers;
+        });
+      } else {
+        fetchWallpapers(category, currentPageMap[category]!).then((wallpapers) {
+          setState(() {
+            categoryWallpapers[category] = wallpapers;
+          });
+        });
+      }
+    }
   }
 
   void changeCategory(String category) {
@@ -139,9 +202,6 @@ class _WallpaperAppState extends State<WallpaperApp>
           ),
         ],
       ),
-
-      //Add this line to include the navigation drawer
-
       body: Column(
         children: [
           TabBar(
@@ -205,11 +265,11 @@ class _WallpaperAppState extends State<WallpaperApp>
                 List<WallpaperModel> wallpapers = List.generate(
                   imageUrls.length,
                   (index) => WallpaperModel(
-                    id: '',
-                    imageUrl: imageUrls[index],
-                    title: titles[index],
-                    author: '',
-                  ),
+                      id: '',
+                      imageUrl: imageUrls[index],
+                      title: titles[index],
+                      author: '',
+                      isFavorite: false),
                 );
 
                 setState(() {
@@ -240,64 +300,67 @@ class _WallpaperAppState extends State<WallpaperApp>
                     );
                   } else {
                     return GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          margin: const EdgeInsets.all(10),
-                          alignment: Alignment.center,
-                          child: ListView.builder(
-                            itemCount: wallpapers.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final wallpaper = wallpapers[index];
-                              return GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => Homescreen(
-                                                title: wallpaper.title)));
-                                    // Handle the onTap event for each wallpaper
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(5),
-                                    margin: const EdgeInsets.all(5),
-                                    decoration: BoxDecoration(
+                      onTap: () {},
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        margin: const EdgeInsets.all(10),
+                        alignment: Alignment.center,
+                        child: ListView.builder(
+                          itemCount: wallpapers.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final wallpaper = wallpapers[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Homescreen(
+                                      title: wallpaper.title,
+                                    ),
+                                  ),
+                                );
+                                // Handle the onTap event for each wallpaper
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                margin: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    ClipRRect(
                                       borderRadius: BorderRadius.circular(10),
+                                      child: Image.asset(
+                                        wallpaper.imageUrl,
+                                        fit: BoxFit.cover,
+                                        height: 200,
+                                        width: 500,
+                                      ),
                                     ),
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          child: Image.asset(
-                                            wallpaper.imageUrl,
-                                            fit: BoxFit.cover,
-                                            height: 200,
-                                            width:
-                                                500, // Adjust the height as per your requirement
+                                    Positioned.fill(
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          wallpaper.title,
+                                          textAlign: TextAlign.center,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 32,
+                                            fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                        Positioned.fill(
-                                          child: Align(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                              wallpaper.title,
-                                              textAlign: TextAlign.center,
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 32,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
-                                  ));
-                            },
-                          ),
-                        ));
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
                   }
                 } else {
                   return NotificationListener<ScrollNotification>(
@@ -320,25 +383,26 @@ class _WallpaperAppState extends State<WallpaperApp>
                       itemBuilder: (BuildContext context, int index) {
                         final wallpaper = wallpapers[index];
                         return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => WallpaperItem(
-                                    wallpaper: wallpaper,
-                                    wallpapers: wallpapers,
-                                    initialIndex: index,
-                                  ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => WallpaperItem(
+                                  wallpaper: wallpaper,
+                                  wallpapers: wallpapers,
+                                  initialIndex: index,
                                 ),
-                              );
-                            },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.network(
-                                wallpaper.imageUrl,
-                                fit: BoxFit.cover,
                               ),
-                            ));
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.network(
+                              wallpaper.imageUrl,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        );
                       },
                     ),
                   );

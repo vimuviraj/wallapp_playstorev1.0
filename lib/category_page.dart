@@ -48,11 +48,11 @@ class _HomescreenState extends State<Homescreen> {
         final title = data['title'].toString();
 
         return WallpaperModel(
-          id: id,
-          imageUrl: imageUrl,
-          author: author,
-          title: title,
-        );
+            id: id,
+            imageUrl: imageUrl,
+            author: author,
+            title: title,
+            isFavorite: false);
       }).toList();
     } else {
       throw Exception('Failed to fetch wallpapers');
@@ -82,11 +82,11 @@ class _HomescreenState extends State<Homescreen> {
         final title = data['url'].toString();
 
         return WallpaperModel(
-          id: id,
-          imageUrl: imageUrl,
-          author: author,
-          title: title,
-        );
+            id: id,
+            imageUrl: imageUrl,
+            author: author,
+            title: title,
+            isFavorite: false);
       }).toList();
     } else {
       throw Exception('Failed to fetch wallpapers');

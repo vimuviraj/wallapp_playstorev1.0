@@ -22,13 +22,14 @@ class WallpaperModel {
   final String imageUrl;
   final String title;
   final String author;
+  bool isFavorite;
 
-  WallpaperModel({
-    required this.id,
-    required this.imageUrl,
-    required this.title,
-    required this.author,
-  });
+  WallpaperModel(
+      {required this.id,
+      required this.imageUrl,
+      required this.title,
+      required this.author,
+      required this.isFavorite});
 }
 
 class WallpaperItem extends StatefulWidget {
@@ -242,6 +243,20 @@ class _WallpaperItemState extends State<WallpaperItem> {
                   );
                 },
               );
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.favorite,
+              color: widget.wallpaper.isFavorite
+                  ? Colors.red
+                  : Colors.grey, // Change color based on isFavorite
+            ),
+            onPressed: () {
+              setState(() {
+                widget.wallpaper.isFavorite =
+                    !widget.wallpaper.isFavorite; // Toggle isFavorite state
+              });
             },
           ),
           IconButton(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'favourit.dart';
+
 class NavigationDrawer1 extends StatelessWidget {
   const NavigationDrawer1({super.key});
 
@@ -34,7 +36,8 @@ class NavigationDrawer1 extends StatelessWidget {
             title: const Text('Favorites'),
             onTap: () {
               // Handle navigation to favorites screen
-              Navigator.pop(context); // Close the drawer
+              Navigator.pop(context);
+              const FavoriteImages(); // Close the drawer
             },
           ),
           ListTile(

@@ -46,6 +46,9 @@ dependencies:
   share_plus: ^7.0.2
   flutter_launcher_icons: ^0.13.1
   rename: ^2.1.1
+  shared_preferences: ^2.1.2
+  flutter_swiper_view: ^1.1.8
+  provider: ^6.0.5
  
 
 
