@@ -15,9 +15,12 @@ class FavoriteProvider extends ChangeNotifier {
   }
 
   Future<void> addToFavorites(WallpaperModel wallpaper) async {
-    favoriteImages.add(wallpaper);
-    await saveFavorites();
-    notifyListeners();
+    final isDuplicate = favoriteImages.any((item) => item.id == wallpaper.id);
+    if (!isDuplicate) {
+      favoriteImages.add(wallpaper);
+      await saveFavorites();
+      notifyListeners();
+    }
   }
 
   Future<void> removeFromFavorites(WallpaperModel wallpaper) async {
@@ -87,25 +90,37 @@ class _FavoritePageState extends State<FavoritePage> {
           final List<WallpaperModel> favoriteImages =
               favoriteProvider.favoriteImages;
 
-          return GestureDetector(
-              onTap: () {},
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 10.0,
-                ),
-                itemCount: favoriteImages.length,
-                itemBuilder: (context, index) {
-                  final wallpaper = favoriteImages[index];
-                  return GridTile(
-                    child: Image.network(
-                      wallpaper.imageUrl,
-                      fit: BoxFit.cover,
+          return GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 10.0,
+              mainAxisSpacing: 10.0,
+            ),
+            itemCount: favoriteImages.length,
+            itemBuilder: (context, index) {
+              final wallpaper = favoriteImages[index];
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => WallpaperItem(
+                        wallpaper: wallpaper,
+                        wallpapers: favoriteImages,
+                        initialIndex: index,
+                      ),
                     ),
                   );
                 },
-              ));
+                child: GridTile(
+                  child: Image.network(
+                    wallpaper.imageUrl,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              );
+            },
+          );
         },
       ),
     );
