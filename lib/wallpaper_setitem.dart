@@ -7,6 +7,9 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_wallpaper_manager/flutter_wallpaper_manager.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:provider/provider.dart';
+
+import 'favourit.dart';
 
 enum WallpaperLocation {
   // ignore: constant_identifier_names
@@ -24,12 +27,23 @@ class WallpaperModel {
   final String author;
   bool isFavorite;
 
-  WallpaperModel(
-      {required this.id,
-      required this.imageUrl,
-      required this.title,
-      required this.author,
-      required this.isFavorite});
+  WallpaperModel({
+    required this.id,
+    required this.imageUrl,
+    required this.title,
+    required this.author,
+    this.isFavorite = false,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'imageUrl': imageUrl,
+      'title': title,
+      'author': author,
+      'isFavorite': isFavorite,
+    };
+  }
 }
 
 class WallpaperItem extends StatefulWidget {
@@ -253,9 +267,16 @@ class _WallpaperItemState extends State<WallpaperItem> {
                   : Colors.grey, // Change color based on isFavorite
             ),
             onPressed: () {
+              final favoriteProvider =
+                  Provider.of<FavoriteProvider>(context, listen: false);
               setState(() {
                 widget.wallpaper.isFavorite =
                     !widget.wallpaper.isFavorite; // Toggle isFavorite state
+                if (widget.wallpaper.isFavorite) {
+                  favoriteProvider.addToFavorites(widget.wallpaper);
+                } else {
+                  favoriteProvider.removeFromFavorites(widget.wallpaper);
+                }
               });
             },
           ),

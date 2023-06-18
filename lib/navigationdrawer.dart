@@ -36,8 +36,7 @@ class NavigationDrawer1 extends StatelessWidget {
             title: const Text('Favorites'),
             onTap: () {
               // Handle navigation to favorites screen
-              Navigator.pop(context);
-              const FavoriteImages(); // Close the drawer
+              Navigator.pushNamed(context, "/favorite"); // Close the drawer
             },
           ),
           ListTile(

@@ -9,8 +9,8 @@ import 'favourit.dart';
 
 void main() {
   runApp(
-    ChangeNotifierProvider<FavoriteImages>(
-      create: (_) => const FavoriteImages(),
+    ChangeNotifierProvider(
+      create: (context) => FavoriteProvider(),
       child: const MyApp(),
     ),
   );
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
       ),
       home: const SplashScreen(),
       routes: {
-        "/favorite": (context) => const FavoriteImages(),
+        "/favorite": (context) => const FavoritePage(),
       },
     );
   }
