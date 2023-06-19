@@ -90,9 +90,19 @@ class _SearchPageState extends State<SearchPage> {
                             initialIndex: index))));
               },
               child: GridTile(
-                child: Image.network(
-                  wallpaper.imageUrl,
-                  fit: BoxFit.cover,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(
+                        10.0), // Adjust the border radius as needed
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                        10.0), // Adjust the border radius as needed
+                    child: Image.network(
+                      wallpaper.imageUrl,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
             );
