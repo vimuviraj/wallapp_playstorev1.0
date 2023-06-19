@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:natural_wallpaper_hd/category_page.dart';
+import 'package:natural_wallpaper_hd/search_page.dart';
 import 'package:natural_wallpaper_hd/wallpaper_Setitem.dart';
 import 'navigationdrawer.dart';
 
@@ -197,7 +198,11 @@ class _WallpaperAppState extends State<WallpaperApp>
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // Handle search button click
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          const SearchPage())); // Handle search button click
             },
           ),
         ],

@@ -33,7 +33,7 @@ class NavigationDrawer1 extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.favorite),
-            title: const Text('Favorites'),
+            title: const Text('Favourites'),
             onTap: () {
               // Handle navigation to favorites screen
               Navigator.pushNamed(context, "/favorite"); // Close the drawer
