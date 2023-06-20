@@ -34,7 +34,9 @@ class _WallpaperAppState extends State<WallpaperApp>
           'order_by': category,
           'page': page.toString(),
           'orientation': 'portrait',
-          'resolution': 'full',
+          'per_page': '20',
+          'w': '3840', // Width of the desired image (4K resolution)
+          'h': '2160',
         },
       ),
     );
@@ -82,7 +84,7 @@ class _WallpaperAppState extends State<WallpaperApp>
     _tabController = TabController(
       length: categories.length,
       vsync: this,
-      initialIndex: 0,
+      initialIndex: 1,
     );
 
     categoryWallpapers = {for (var category in categories) category: []};
@@ -196,13 +198,15 @@ class _WallpaperAppState extends State<WallpaperApp>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: Transform.scale(
+              scale: 1.5, // Adjust the scale factor as needed
+              child: const Icon(Icons.search),
+            ),
             onPressed: () {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          const SearchPage())); // Handle search button click
+                context,
+                MaterialPageRoute(builder: (context) => const SearchPage()),
+              );
             },
           ),
         ],

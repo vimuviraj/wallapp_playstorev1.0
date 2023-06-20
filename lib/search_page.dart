@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:natural_wallpaper_hd/wallpaper_Setitem.dart';
+import 'package:flutter/scheduler.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -12,14 +13,25 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   List<WallpaperModel> _searchResults = [];
   int _currentPage = 1;
   int _totalPages = 1;
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Request focus for the search TextField
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _searchFocusNode.requestFocus();
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -38,6 +50,7 @@ class _SearchPageState extends State<SearchPage> {
             Expanded(
               child: TextField(
                 controller: _searchController,
+                focusNode: _searchFocusNode,
                 decoration: const InputDecoration(
                   hintText: 'Search wallpapers',
                   border: InputBorder.none,

@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 import 'package:flutter_wallpaper_manager/flutter_wallpaper_manager.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:share_plus/share_plus.dart';
+
 import 'package:provider/provider.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:dio/dio.dart';
+import 'dart:typed_data';
 
 import 'favourit.dart';
 
@@ -87,6 +89,19 @@ class _WallpaperItemState extends State<WallpaperItem> {
     }
   }
 
+  void saveNetworkImage() async {
+    var response = await Dio().get(
+      widget.wallpaper.imageUrl,
+      options: Options(responseType: ResponseType.bytes),
+    );
+
+    final result = await ImageGallerySaver.saveImage(
+      Uint8List.fromList(response.data),
+      quality: 100,
+      name: "my_image",
+    );
+  }
+
   void showNextImage() {
     if (_currentIndex < widget.wallpapers.length - 1) {
       setState(() {
@@ -106,6 +121,7 @@ class _WallpaperItemState extends State<WallpaperItem> {
 
     var file = await DefaultCacheManager().getSingleFile(imageUrl);
     final String filePath = file.path;
+
     // ignore: use_build_context_synchronously
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -122,63 +138,36 @@ class _WallpaperItemState extends State<WallpaperItem> {
           CropStyle.rectangle, // You can change this based on your preference
       compressQuality: 100, // Adjust the compression quality as needed
     );
-    AndroidUiSettings(
-      toolbarTitle: 'Cropper',
-      toolbarColor: Colors.blue,
-      toolbarWidgetColor: Colors.blue,
-      initAspectRatio: CropAspectRatioPreset.original,
-      lockAspectRatio: false,
-      hideBottomControls: true,
-    );
 
     if (croppedFile != null) {
-      // Compress the image to match the screen width
-      // ignore: use_build_context_synchronously
-      final screenWidth = MediaQuery.of(context).size.width.toInt();
+      int location;
 
-      List<int>? compressedImage = await FlutterImageCompress.compressWithFile(
+      switch (_selectedLocation) {
+        case WallpaperLocation.HomeScreen:
+          location = WallpaperManager.HOME_SCREEN;
+          break;
+        case WallpaperLocation.LockScreen:
+          location = WallpaperManager.LOCK_SCREEN;
+          break;
+        case WallpaperLocation.Both:
+        default:
+          location = WallpaperManager.BOTH_SCREEN;
+          break;
+      }
+
+      await WallpaperManager.setWallpaperFromFile(
         croppedFile
             .path, // Use the cropped file path instead of the original file path
-        minWidth: screenWidth,
-        quality: 100,
+        location,
       );
 
-      if (compressedImage != null) {
-        // Save the compressed image to a new file
-        final compressedFilePath = croppedFile.path
-            .replaceAll('.jpg', '_compressed.jpg'); // Update the file path
-        await File(compressedFilePath).writeAsBytes(compressedImage);
+      // Verify the compression
+      final originalFileSize = await file.length();
+      final croppedFileSize = await File(croppedFile.path).length();
 
-        int location;
-
-        switch (_selectedLocation) {
-          case WallpaperLocation.HomeScreen:
-            location = WallpaperManager.HOME_SCREEN;
-            break;
-          case WallpaperLocation.LockScreen:
-            location = WallpaperManager.LOCK_SCREEN;
-            break;
-          case WallpaperLocation.Both:
-          default:
-            location = WallpaperManager.BOTH_SCREEN;
-            break;
-        }
-
-        await WallpaperManager.setWallpaperFromFile(
-          compressedFilePath,
-          location,
-        );
-
-        // Verify the compression
-        final originalFileSize = await file.length();
-        final compressedFile = File(compressedFilePath);
-        final compressedFileSize = await compressedFile.length();
-
-        if (compressedFileSize < originalFileSize) {
-          final savedPercentage =
-              ((1 - compressedFileSize / originalFileSize) * 100)
-                  .toStringAsFixed(2);
-        } else {}
+      if (croppedFileSize < originalFileSize) {
+        final savedPercentage =
+            ((1 - croppedFileSize / originalFileSize) * 100).toStringAsFixed(2);
       }
     }
   }
@@ -202,58 +191,68 @@ class _WallpaperItemState extends State<WallpaperItem> {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Set Wallpaper Location'),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: const Text('Home Screen'),
-                          leading: Radio<WallpaperLocation>(
-                            value: WallpaperLocation.HomeScreen,
-                            groupValue: _selectedLocation,
-                            onChanged: (WallpaperLocation? value) {
-                              setState(() {
-                                _selectedLocation = value!;
-                              });
-                            },
-                          ),
+                  return StatefulBuilder(
+                    builder: (BuildContext context, StateSetter setState) {
+                      return AlertDialog(
+                        title: const Text('Set Wallpaper Location'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              title: const Text('Home Screen'),
+                              leading: Radio<WallpaperLocation>(
+                                value: WallpaperLocation.HomeScreen,
+                                groupValue: _selectedLocation,
+                                onChanged: (WallpaperLocation? value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _selectedLocation = value;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                            ListTile(
+                              title: const Text('Lock Screen'),
+                              leading: Radio<WallpaperLocation>(
+                                value: WallpaperLocation.LockScreen,
+                                groupValue: _selectedLocation,
+                                onChanged: (WallpaperLocation? value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _selectedLocation = value;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                            ListTile(
+                              title: const Text('Both'),
+                              leading: Radio<WallpaperLocation>(
+                                value: WallpaperLocation.Both,
+                                groupValue: _selectedLocation,
+                                onChanged: (WallpaperLocation? value) {
+                                  if (value != null) {
+                                    setState(() {
+                                      _selectedLocation = value;
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
+                          ],
                         ),
-                        ListTile(
-                          title: const Text('Lock Screen'),
-                          leading: Radio<WallpaperLocation>(
-                            value: WallpaperLocation.LockScreen,
-                            groupValue: _selectedLocation,
-                            onChanged: (WallpaperLocation? value) {
-                              setState(() {
-                                _selectedLocation = value!;
-                              });
+                        actions: [
+                          ElevatedButton(
+                            onPressed: () {
+                              setWallpaper();
+                              Navigator.pop(context);
                             },
+                            child: const Text('Set Wallpaper'),
                           ),
-                        ),
-                        ListTile(
-                          title: const Text('Both'),
-                          leading: Radio<WallpaperLocation>(
-                            value: WallpaperLocation.Both,
-                            groupValue: _selectedLocation,
-                            onChanged: (WallpaperLocation? value) {
-                              setState(() {
-                                _selectedLocation = value!;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    actions: [
-                      ElevatedButton(
-                        onPressed: () {
-                          setWallpaper(); // Set the wallpaper when the wallpaper button is pressed
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Set Wallpaper'),
-                      ),
-                    ],
+                        ],
+                      );
+                    },
                   );
                 },
               );
@@ -281,9 +280,9 @@ class _WallpaperItemState extends State<WallpaperItem> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.share),
+            icon: const Icon(Icons.download),
             onPressed: () async {
-              await Share.share(widget.wallpaper.imageUrl);
+              saveNetworkImage();
             },
           ),
         ],

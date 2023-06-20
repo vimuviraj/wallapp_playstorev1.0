@@ -35,7 +35,7 @@ class _HomescreenState extends State<Homescreen> {
   Future<List<WallpaperModel>> fetchPixabayWallpapers(
       String category, int page) async {
     final response = await http.get(Uri.parse(
-        'https://pixabay.com/api/?key=37019221-c658bd28d15f87345edd3c1b6&category=$category&orientation=vertical&per_page=20&q=nature&image_type=photo&min_width=1920&min_height=1080&page=$page'));
+        'https://pixabay.com/api/?key=37019221-c658bd28d15f87345edd3c1b6&category=$category&orientation=vertical&per_page=20&q=nature&image_type=photo&min_width=3840&min_height=2160&page=$page'));
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> responseData = jsonDecode(response.body);
@@ -43,16 +43,18 @@ class _HomescreenState extends State<Homescreen> {
 
       return images.map((data) {
         final id = data['id'].toString();
-        final imageUrl = data['largeImageURL'].toString();
+        final imageUrl = data['fullHDURL']
+            .toString(); // Use the 'fullHDURL' for higher resolution
         final author = data['user'].toString();
         final title = data['title'].toString();
 
         return WallpaperModel(
-            id: id,
-            imageUrl: imageUrl,
-            author: author,
-            title: title,
-            isFavorite: false);
+          id: id,
+          imageUrl: imageUrl,
+          author: author,
+          title: title,
+          isFavorite: false,
+        );
       }).toList();
     } else {
       throw Exception('Failed to fetch wallpapers');
@@ -63,7 +65,7 @@ class _HomescreenState extends State<Homescreen> {
       String category, int page) async {
     final response = await http.get(
       Uri.parse(
-        'https://api.pexels.com/v1/search?query=$category&per_page=20&page=$page&size=medium',
+        'https://api.pexels.com/v1/search?query=$category&per_page=20&page=$page&size=original',
       ),
       headers: {
         'Authorization':

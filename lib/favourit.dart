@@ -4,7 +4,6 @@ import 'package:natural_wallpaper_hd/wallpaper_Setitem.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:natural_wallpaper_hd/category.dart';
 
 class FavoriteProvider extends ChangeNotifier {
   List<WallpaperModel> favoriteImages = [];
@@ -39,7 +38,6 @@ class FavoriteProvider extends ChangeNotifier {
   Future<void> retrieveFavorites() async {
     final prefs = await SharedPreferences.getInstance();
     final favoriteImagesJson = prefs.getString('favoriteImages');
-    print('favoriteImagesJson: $favoriteImagesJson');
 
     if (favoriteImagesJson != null) {
       try {
@@ -56,7 +54,6 @@ class FavoriteProvider extends ChangeNotifier {
             .toList();
       } catch (e) {
         // Handle parsing error
-        print('Error parsing favoriteImagesJson: $e');
       }
     }
   }
