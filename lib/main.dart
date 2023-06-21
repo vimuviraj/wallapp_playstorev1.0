@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:natural_wallpaper_hd/category.dart';
+import 'package:natural_wallpaper_hd/home.dart';
 
 import 'package:natural_wallpaper_hd/splash_screen.dart';
 import 'package:provider/provider.dart';

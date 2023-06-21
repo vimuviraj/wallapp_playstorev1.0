@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:dio/dio.dart';
 import 'dart:typed_data';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'favourit.dart';
 
@@ -68,6 +69,7 @@ class _WallpaperItemState extends State<WallpaperItem> {
   late PageController _pageController;
   late int _currentIndex;
   WallpaperLocation _selectedLocation = WallpaperLocation.Both;
+  bool isDownloading = false;
 
   @override
   void initState() {
@@ -89,7 +91,7 @@ class _WallpaperItemState extends State<WallpaperItem> {
     }
   }
 
-  void saveNetworkImage() async {
+  void saveNetworkImage(BuildContext context) async {
     var response = await Dio().get(
       widget.wallpaper.imageUrl,
       options: Options(responseType: ResponseType.bytes),
@@ -100,6 +102,29 @@ class _WallpaperItemState extends State<WallpaperItem> {
       quality: 100,
       name: "my_image",
     );
+
+    setState(() {
+      isDownloading =
+          false; // Set isDownloading to false when the download is complete
+    });
+
+    if (result['isSuccess']) {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Image saved to gallery'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to save image'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   void showNextImage() {
@@ -132,7 +157,7 @@ class _WallpaperItemState extends State<WallpaperItem> {
       sourcePath: file.path,
       aspectRatio: CropAspectRatio(
         ratioX: screenAspectRatio,
-        ratioY: 1.0, // Set ratioY to 1.0 for maintaining the same aspect ratio
+        ratioY: 1, // Set ratioY to 1.0 for maintaining the same aspect ratio
       ),
       cropStyle:
           CropStyle.rectangle, // You can change this based on your preference
@@ -280,9 +305,13 @@ class _WallpaperItemState extends State<WallpaperItem> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.download),
+            icon: isDownloading
+                ? const SpinKitCircle(
+                    color: Colors.white,
+                    size: 24) // Show spinner if downloading
+                : const Icon(Icons.download),
             onPressed: () async {
-              saveNetworkImage();
+              saveNetworkImage(context);
             },
           ),
         ],

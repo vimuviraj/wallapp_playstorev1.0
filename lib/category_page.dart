@@ -65,7 +65,7 @@ class _HomescreenState extends State<Homescreen> {
       String category, int page) async {
     final response = await http.get(
       Uri.parse(
-        'https://api.pexels.com/v1/search?query=$category&per_page=20&page=$page&size=original',
+        'https://api.pexels.com/v1/search?query=4k+wallpapers+$category&per_page=10&random',
       ),
       headers: {
         'Authorization':
